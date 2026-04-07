@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Panel Admin - Bitec Software</title>
     <style>
-        :root { --primary: #38bdf8; --bg: #0f172a; --card: #1e293b; --border: #334155; --accent: #f59e0b; --danger: #ef4444; }
+        :root { --primary: #38bdf8; --bg: #0f172a; --card: #1e293b; --border: #334155; --accent: #f59e0b; --danger: #ef4444; --success: #22c55e; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
         
         .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--border); background: var(--card); }
@@ -13,73 +13,72 @@
         .tab-btn { background: none; border: none; color: #94a3b8; padding: 15px 25px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; transition: 0.3s; }
         .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
         
-        .ticket-count { background: var(--danger); color: white; padding: 2px 6px; border-radius: 50%; font-size: 0.7rem; margin-left: 5px; }
-
-        .content { padding: 30px; }
+        .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
         .section { display: none; }
         .section.active { display: block; }
 
-        .card-table { background: var(--card); border-radius: 12px; border: 1px solid var(--border); overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: left; }
-        th { background: #334155; padding: 15px; color: var(--primary); }
-        td { padding: 15px; border-bottom: 1px solid var(--border); }
+        /* Estilos de Tickets */
+        .ticket-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; position: relative; }
+        .ticket-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
+        .ticket-id { font-family: monospace; color: var(--primary); font-weight: bold; font-size: 1.1rem; }
         
-        .ticket-card { background: #161b22; border: 1px solid var(--border); padding: 20px; border-radius: 10px; margin-bottom: 15px; position: relative; }
-        .ticket-header { display: flex; justify-content: space-between; margin-bottom: 10px; padding-right: 40px; }
-        
-        .status-pendiente { color: #f59e0b; font-weight: bold; }
-        .status-respondido { color: #22c55e; font-weight: bold; }
-        
-        textarea { width: 100%; background: #0f172a; border: 1px solid var(--border); color: white; padding: 10px; border-radius: 8px; margin-top: 10px; resize: none; box-sizing: border-box; }
-        
-        .btn-action { background: var(--primary); color: #0f172a; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .btn-delete { background: var(--danger); color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 0.8rem; position: absolute; top: 20px; right: 20px; }
-        .btn-volver { background: #475569; color: white; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; }
+        .status-badge { padding: 4px 10px; border-radius: 5px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; }
+        .status-pendiente { background: var(--accent); color: #0f172a; }
+        .status-respondido { background: var(--success); color: #0f172a; }
 
-        select { background: #0f172a; color: white; border: 1px solid var(--border); padding: 5px; border-radius: 4px; }
+        .user-info { font-size: 0.85rem; color: #94a3b8; margin-bottom: 10px; }
+        .msg-box { background: #0f172a; padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary); margin: 10px 0; font-size: 0.95rem; }
+        
+        textarea { width: 100%; background: #0b1120; color: white; border: 1px solid var(--border); border-radius: 8px; padding: 12px; resize: none; margin-top: 10px; font-family: inherit; box-sizing: border-box; }
+        
+        .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; margin-top: 10px; }
+        .btn-primary { background: var(--primary); color: #0f172a; width: 100%; }
+        .btn-danger { background: none; border: 1px solid var(--danger); color: var(--danger); font-size: 0.8rem; margin-top: 0; }
+        .btn-danger:hover { background: var(--danger); color: white; }
+
+        /* Usuarios Table */
+        table { width: 100%; border-collapse: collapse; background: var(--card); border-radius: 10px; overflow: hidden; }
+        th, td { padding: 15px; text-align: left; border-bottom: 1px solid var(--border); }
+        th { background: #161b22; color: var(--primary); }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1>⚙️ Panel Administrativo</h1>
-        <a href="index.html" class="btn-volver">VOLVER AL SITIO</a>
+        <h1 style="font-size: 1.2rem; margin:0;">🛡️ Panel de Administración - Bitec</h1>
+        <a href="perfil.html" style="color: white; text-decoration: none; font-size: 0.9rem;">← Volver al Perfil</a>
     </div>
 
     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="switchTab('usuarios')">USUARIOS</button>
-        <button class="tab-btn" onclick="switchTab('tickets')">
-            TICKETS <span id="tab-count" class="ticket-count" style="display:none">0</span>
-        </button>
+        <button class="tab-btn active" onclick="window.switchTab('tickets')">Tickets</button>
+        <button class="tab-btn" onclick="window.switchTab('usuarios')">Usuarios</button>
     </div>
 
     <div class="content">
-        <div id="sec-usuarios" class="section active">
-            <div class="card-table">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>USUARIO</th>
-                            <th>CORREO</th>
-                            <th>RANGO</th>
-                            <th>ACCIONES</th>
-                        </tr>
-                    </thead>
-                    <tbody id="listaUsuarios"></tbody>
-                </table>
-            </div>
+        <div id="sec-tickets" class="section active">
+            <h2 id="ticket-header-title">Gestión de Tickets</h2>
+            <div id="listaTickets">Cargando tickets...</div>
         </div>
 
-        <div id="sec-tickets" class="section">
-            <h2 id="ticket-header-title">Gestión de Tickets (0)</h2>
-            <div id="listaTickets"></div>
+        <div id="sec-usuarios" class="section">
+            <h2>Lista de Usuarios</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Email</th>
+                        <th>Rango</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="listaUsuarios"></tbody>
+            </table>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, getDocs, doc, getDoc, updateDoc, deleteDoc, query, orderBy, onSnapshot, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, query, onSnapshot, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBkkeUy3lWFwRCZp-2gfoEBu5UP2R2vsZk",
@@ -96,84 +95,85 @@
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                const userDoc = await getDoc(doc(db, "usuarios", user.uid));
-                if (userDoc.exists() && userDoc.data().rango === "admin") {
+                const uDoc = await getDoc(doc(db, "usuarios", user.uid));
+                if (uDoc.exists() && uDoc.data().rango === "admin") {
+                    cargarTicketsAdmin();
                     cargarUsuarios();
-                    escucharTickets();
                 } else {
-                    window.location.href = "index.html";
+                    alert("Acceso denegado.");
+                    window.location.href = "perfil.html";
                 }
             } else {
                 window.location.href = "login.html";
             }
         });
 
-        async function cargarUsuarios() {
-            const querySnapshot = await getDocs(collection(db, "usuarios"));
-            const tbody = document.getElementById('listaUsuarios');
-            tbody.innerHTML = "";
-            querySnapshot.forEach((uDoc) => {
-                const u = uDoc.data();
-                const id = uDoc.id;
-                const fila = document.createElement('tr');
-                fila.innerHTML = `
-                    <td>${u.nombre || 'Sin nombre'}</td>
-                    <td>${u.correo}</td>
-                    <td>${u.rango}</td>
-                    <td>
-                        <select onchange="window.cambiarRango('${id}', this.value)">
-                            <option value="">Cambiar...</option>
-                            <option value="usuario">Usuario</option>
-                            <option value="admin">Admin</option>
-                        </select>
-                    </td>
-                `;
-                tbody.appendChild(fila);
-            });
-        }
-
-        // Escuchar Tickets en tiempo real y contar pendientes
-        function escucharTickets() {
-            const q = query(collection(db, "tickets"), orderBy("fecha", "desc"));
-            onSnapshot(q, (snapshot) => {
+        function cargarTicketsAdmin() {
+            onSnapshot(collection(db, "tickets"), (snapshot) => {
                 const container = document.getElementById('listaTickets');
                 container.innerHTML = "";
-                
-                let pendientes = 0;
-                let total = snapshot.size;
+                let total = 0;
 
                 snapshot.forEach((tDoc) => {
                     const t = tDoc.data();
                     const id = tDoc.id;
-                    if (t.estado === 'pendiente') pendientes++;
+                    const shortId = id.substring(0, 6).toUpperCase(); // Sincronizado con el usuario
+                    const fecha = t.fecha ? t.fecha.toDate().toLocaleString() : '---';
+                    total++;
 
                     const card = document.createElement('div');
                     card.className = "ticket-card";
                     card.innerHTML = `
-                        <button class="btn-delete" onclick="window.eliminarTicket('${id}')">BORRAR</button>
                         <div class="ticket-header">
-                            <span><strong>Usuario:</strong> ${t.usuario}</span>
-                            <span class="${t.estado === 'pendiente' ? 'status-pendiente' : 'status-respondido'}">${t.estado.toUpperCase()}</span>
+                            <div>
+                                <span class="ticket-id">#${shortId}</span>
+                                <div class="user-info">${t.usuario}</div>
+                            </div>
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <span class="status-badge ${t.estado === 'pendiente' ? 'status-pendiente' : 'status-respondido'}">${t.estado}</span>
+                                <button class="btn btn-danger" onclick="window.eliminarTicket('${id}')">🗑️</button>
+                            </div>
                         </div>
-                        <p style="background:#0f172a; padding:10px; border-radius:5px;">${t.mensaje}</p>
-                        ${t.respuesta ? `<p style="color:#22c55e;"><strong>Respuesta:</strong> ${t.respuesta}</p>` : ''}
-                        ${t.estado === 'pendiente' ? `
-                            <textarea id="resp-${id}" placeholder="Escribir respuesta..."></textarea>
-                            <button class="btn-action" onclick="window.responderTicket('${id}')">RESPONDER</button>
-                        ` : ''}
+                        
+                        <div class="msg-box"><strong>Consulta:</strong><br>${t.mensaje}</div>
+
+                        ${t.respuesta ? `
+                            <div style="margin-top:10px; color:var(--success); font-size:0.9rem;">
+                                <strong>Respuesta enviada:</strong> ${t.respuesta}
+                            </div>
+                        ` : `
+                            <textarea id="resp-${id}" placeholder="Escribe la respuesta para el usuario..."></textarea>
+                            <button class="btn btn-primary" onclick="window.responderTicket('${id}')">ENVIAR RESPUESTA</button>
+                        `}
+                        <div style="text-align:right; font-size:0.7rem; color:#475569; margin-top:10px;">📅 ${fecha}</div>
                     `;
                     container.appendChild(card);
                 });
-
-                // Actualizar contadores
-                const badge = document.getElementById('tab-count');
-                if (pendientes > 0) {
-                    badge.innerText = pendientes;
-                    badge.style.display = "inline-block";
-                } else {
-                    badge.style.display = "none";
-                }
                 document.getElementById('ticket-header-title').innerText = `Gestión de Tickets (${total})`;
+            });
+        }
+
+        function cargarUsuarios() {
+            onSnapshot(collection(db, "usuarios"), (snapshot) => {
+                const container = document.getElementById('listaUsuarios');
+                container.innerHTML = "";
+                snapshot.forEach((uDoc) => {
+                    const u = uDoc.data();
+                    const id = uDoc.id;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${u.email}</td>
+                        <td><b style="color:var(--primary)">${u.rango}</b></td>
+                        <td>
+                            <select onchange="window.cambiarRango('${id}', this.value)" style="background:#0f172a; color:white; border:1px solid var(--border); padding:5px; border-radius:4px;">
+                                <option value="">Cambiar...</option>
+                                <option value="usuario">Usuario</option>
+                                <option value="admin">Admin</option>
+                            </select>
+                        </td>
+                    `;
+                    container.appendChild(tr);
+                });
             });
         }
 
@@ -185,16 +185,9 @@
             event.target.classList.add('active');
         };
 
-        window.cambiarRango = async (uid, nuevoRango) => {
-            if (!nuevoRango) return;
-            await updateDoc(doc(db, "usuarios", uid), { rango: nuevoRango });
-            alert("Rango actualizado.");
-            cargarUsuarios();
-        };
-
         window.responderTicket = async (id) => {
-            const texto = document.getElementById(`resp-${id}`).value;
-            if (!texto.trim()) return;
+            const texto = document.getElementById(`resp-${id}`).value.trim();
+            if (!texto) return alert("Escribe una respuesta primero.");
             await updateDoc(doc(db, "tickets", id), {
                 respuesta: texto,
                 estado: "respondido"
@@ -202,9 +195,15 @@
         };
 
         window.eliminarTicket = async (id) => {
-            if (confirm("¿Seguro que quieres eliminar este ticket permanentemente?")) {
+            if (confirm("¿Eliminar este ticket permanentemente?")) {
                 await deleteDoc(doc(db, "tickets", id));
             }
+        };
+
+        window.cambiarRango = async (uid, nuevoRango) => {
+            if (!nuevoRango) return;
+            await updateDoc(doc(db, "usuarios", uid), { rango: nuevoRango });
+            alert("Rango actualizado.");
         };
 
     </script>
