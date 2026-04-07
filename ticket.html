@@ -56,7 +56,7 @@
         </h3>
         
         <div id="listaMisTickets">
-            <p style="text-align:center; color:#475569;">Iniciando sesión...</p>
+            <p style="text-align:center; color:#475569;">Iniciando sistema...</p>
         </div>
     </div>
 
@@ -74,6 +74,7 @@
             appId: "1:573214894891:web:646628d1e8eb15478bf36e"
         };
 
+        // Inicialización
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -93,7 +94,7 @@
         document.getElementById('btnEnviarTicket').onclick = async () => {
             const msj = document.getElementById('txtTicket').value.trim();
             if (!msj) return alert("Por favor, describe tu problema.");
-            if (!currentUser) return alert("Debes estar conectado.");
+            if (!currentUser) return alert("No se detectó sesión activa.");
 
             try {
                 await addDoc(collection(db, "tickets"), {
@@ -108,12 +109,13 @@
                 alert("✅ Ticket enviado correctamente.");
             } catch (e) {
                 console.error("Error al enviar:", e);
-                alert("Error al enviar el ticket. Revisa la consola.");
+                alert("Hubo un error al enviar el ticket.");
             }
         };
 
-        // CARGAR HISTORIAL EN TIEMPO REAL
+        // CARGAR HISTORIAL
         function cargarMisTickets() {
+            // Nota: Si no cargan los datos, revisa la consola para ver si falta un índice de Firestore
             const q = query(
                 collection(db, "tickets"), 
                 where("uid", "==", currentUser.uid),
@@ -135,8 +137,7 @@
                     const t = tDoc.data();
                     const id = tDoc.id;
                     const shortId = id.substring(0, 6).toUpperCase();
-                    // Manejo de fecha mientras se sube al servidor
-                    const fecha = t.fecha ? t.fecha.toDate().toLocaleString() : 'Enviando...';
+                    const fecha = t.fecha ? t.fecha.toDate().toLocaleString() : 'Procesando...';
                     
                     const div = document.createElement('div');
                     div.className = "ticket-item";
@@ -158,20 +159,17 @@
                 });
             }, (error) => {
                 console.error("Error en Snapshot:", error);
-                if (error.code === 'failed-precondition') {
-                    document.getElementById('listaMisTickets').innerHTML = "<p style='color:orange; text-align:center;'>Configurando base de datos... Por favor, abre la consola (F12) y haz clic en el enlace de Firebase para crear el índice.</p>";
-                } else {
-                    document.getElementById('listaMisTickets').innerHTML = "<p style='color:red; text-align:center;'>Error al cargar el historial.</p>";
-                }
+                document.getElementById('listaMisTickets').innerHTML = "<p style='color:orange; text-align:center;'>Error de carga. Si el problema persiste, revisa los índices de Firebase en la consola del navegador (F12).</p>";
             });
         }
 
+        // FUNCIÓN GLOBAL PARA CANCELAR
         window.eliminarPropioTicket = async (id) => {
             if (confirm("¿Estás seguro de que quieres cancelar este ticket?")) {
                 try {
                     await deleteDoc(doc(db, "tickets", id));
                 } catch (e) {
-                    alert("No se pudo eliminar.");
+                    alert("Error al eliminar.");
                 }
             }
         };
