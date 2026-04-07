@@ -1,18 +1,144 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>Bitec Software</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitec Software - Mantenimiento</title>
+    <style>
+        /* CSS INTEGRADO */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0d1117; /* Fondo oscuro profesional */
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-container {
+            text-align: center;
+            background: #161b22;
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #30363d;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            max-width: 450px;
+            width: 90%;
+        }
+
+        /* Contenedor de Bitecito */
+        .image-container {
+            margin-bottom: 25px;
+        }
+
+        .pixel-art {
+            width: 200px;
+            height: 200px;
+            /* El truco mágico para que el pixel art no se vea borroso */
+            image-rendering: pixelated; 
+            border-radius: 12px;
+            transition: transform 0.3s ease;
+        }
+
+        .pixel-art:hover {
+            transform: scale(1.05);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            color: #58a6ff; /* Azul Bitec */
+        }
+
+        p {
+            font-size: 1rem;
+            color: #8b949e;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+
+        /* Barra de progreso con estilo "Tech" */
+        .loader-wrapper {
+            background: #21262d;
+            height: 8px;
+            width: 100%;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .loader-bar {
+            position: absolute;
+            height: 100%;
+            width: 50%;
+            background: linear-gradient(90deg, #58a6ff, #f39c12); /* Azul a Naranja */
+            border-radius: 10px;
+            animation: moveLoader 2s infinite ease-in-out;
+        }
+
+        @keyframes moveLoader {
+            0% { left: -50%; }
+            100% { left: 100%; }
+        }
+
+        .btn-update {
+            background-color: #238636; /* Verde éxito */
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+
+        .btn-update:hover {
+            background-color: #2ea043;
+        }
+
+        .footer-tag {
+            margin-top: 25px;
+            font-size: 0.75rem;
+            color: #484f58;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
 </head>
 <body>
-    <h1>¡Hola! Estamos en mantenimiento, Disculpa las molestias.</h1>
-    <a href="https://ibb.co/Mkm3fbFD">
-  <img 
-    src="https://i.ibb.co/3mnLvwgy/bitecito-mantenimiento.png" 
-    alt="Bitecito Mantenimiento" 
-    width="200" 
-    height="200" 
-    style="image-rendering: pixelated; border: 0;"
-  >
-</a>
+
+    <div class="main-container">
+        <div class="image-container">
+            <a href="https://ibb.co/Mkm3fbFD">
+                <img src="https://i.ibb.co/3mnLvwgy/bitecito-mantenimiento.png" 
+                     alt="Bitecito Mantenimiento" 
+                     class="pixel-art">
+            </a>
+        </div>
+
+        <h1>Sistema en Soporte Bitec Software</h1>
+        <p>Estamos realizando mejoras técnicas en el panel. Bitecito está supervisando la actualización.</p>
+
+        <div class="loader-wrapper">
+            <div class="loader-bar"></div>
+        </div>
+
+        <button class="btn-update" onclick="location.reload()">REVISAR ESTADO</button>
+
+        <div class="footer-tag">
+            Bitec Software Chile 2026
+        </div>
+    </div>
+
 </body>
 </html>
