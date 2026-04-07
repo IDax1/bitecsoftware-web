@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bitec Software Chile - Inicio</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { 
             --primary: #38bdf8; 
@@ -11,6 +12,7 @@
             --sidebar: #1e293b; 
             --text: #f8fafc; 
             --accent: #22c55e;
+            --danger: #ef4444;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -38,12 +40,12 @@
         .logo-text { font-size: 1.4rem; font-weight: bold; color: var(--primary); letter-spacing: 1px; }
 
         .nav-menu { flex: 1; }
-
-        .nav-link { 
+        .nav-item { 
             display: flex; 
             align-items: center; 
-            color: #94a3b8; 
+            gap: 15px; 
             text-decoration: none; 
+            color: #94a3b8; 
             padding: 12px 15px; 
             border-radius: 8px; 
             margin-bottom: 8px; 
@@ -51,66 +53,60 @@
             font-weight: 500;
         }
 
-        .nav-link:hover { 
+        .nav-item:hover, .nav-item.active { 
             background: #334155; 
-            color: white; 
+            color: var(--primary); 
         }
 
-        .nav-link.active { 
-            background: var(--primary); 
-            color: var(--bg); 
-        }
+        .nav-item i { font-size: 1.1rem; }
 
-        /* Clases para mostrar/ocultar según sesión */
-        .auth-only { display: none; }
-
-        .btn-logout { 
-            width: 100%; 
-            background: #ef4444; 
-            color: white; 
-            border: none; 
-            padding: 12px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            margin-top: 20px;
-            transition: 0.3s;
-        }
-        .btn-logout:hover { background: #dc2626; }
+        /* Ocultos por defecto (Admin Only) */
+        #admin-nav-item, #notif-bell { display: none; }
 
         /* CONTENIDO PRINCIPAL */
-        .main-content { 
-            flex: 1; 
-            padding: 60px; 
-            overflow-y: auto; 
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+
+        .top-bar { 
+            padding: 20px 40px; 
             display: flex; 
-            flex-direction: column; 
+            justify-content: space-between; 
             align-items: center; 
-            justify-content: center; 
-            text-align: center; 
+            border-bottom: 1px solid #334155; 
         }
 
-        .hero-img { 
-            width: 180px; 
-            image-rendering: pixelated; 
-            margin-bottom: 20px; 
+        /* Notificaciones */
+        .notif-wrapper { position: relative; cursor: pointer; padding: 10px; border-radius: 50%; transition: 0.3s; }
+        .notif-wrapper:hover { background: #334155; }
+        .badge { 
+            position: absolute; top: 5px; right: 5px; 
+            background: var(--danger); color: white; 
+            font-size: 0.7rem; padding: 2px 6px; 
+            border-radius: 10px; font-weight: bold;
+        }
+        .pulse { animation: pulse-red 2s infinite; }
+        @keyframes pulse-red {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
         }
 
-        h1 { font-size: 2.8rem; margin-bottom: 15px; color: var(--primary); }
-        p { font-size: 1.1rem; color: #94a3b8; max-width: 600px; line-height: 1.6; margin-bottom: 30px; }
+        .hero-section { padding: 60px 40px; max-width: 900px; }
+        .hero-section h1 { font-size: 3rem; margin-bottom: 20px; line-height: 1.2; }
+        .hero-section h1 span { color: var(--primary); }
+        .hero-section p { font-size: 1.1rem; color: #94a3b8; line-height: 1.6; margin-bottom: 30px; }
 
-        .btn-cta { 
-            background: var(--accent); 
-            color: white; 
+        .btn-main { 
+            display: inline-block; 
+            background: var(--primary); 
+            color: var(--bg); 
             padding: 15px 35px; 
             border-radius: 8px; 
             text-decoration: none; 
             font-weight: bold; 
             transition: 0.3s; 
-            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3);
         }
 
-        .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4); }
+        .btn-main:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(56, 189, 248, 0.2); }
     </style>
 </head>
 <body>
@@ -121,31 +117,57 @@
         </div>
 
         <nav class="nav-menu">
-            <a href="index.html" class="nav-link active">Inicio</a>
+            <a href="index.html" class="nav-item active">
+                <i class="fas fa-home"></i> Inicio
+            </a>
+            <a href="mensajeria.html" class="nav-item auth-only">
+                <i class="fas fa-comments"></i> Comunidad
+            </a>
+            <a href="ticket.html" class="nav-item auth-only">
+                <i class="fas fa-ticket-alt"></i> Soporte
+            </a>
+            <a href="perfil.html" class="nav-item auth-only">
+                <i class="fas fa-user-circle"></i> Mi Perfil
+            </a>
             
-            <a href="login.html" id="linkIngresar" class="nav-link">Ingresar</a>
-
-            <a href="perfil.html" class="nav-link auth-only">Mi Perfil</a>
-            <a href="mensajeria.html" class="nav-link auth-only">Chat Comunitario</a>
-            <a href="ticket.html" class="nav-link auth-only">Soporte (Tickets)</a>
+            <a href="admin.html" id="admin-nav-item" class="nav-item" style="color: var(--accent); border: 1px dashed var(--accent); margin-top: 20px;">
+                <i class="fas fa-user-shield"></i> Panel Admin
+            </a>
         </nav>
 
-        <div id="logoutWrapper" class="auth-only">
-            <button id="btnCerrarSesion" class="btn-logout">Cerrar Sesión</button>
+        <div class="auth-options">
+            <a href="login.html" id="linkIngresar" class="nav-item">
+                <i class="fas fa-sign-in-alt"></i> Ingresar
+            </a>
+            <a href="#" id="btnCerrarSesion" class="nav-item auth-only" style="color: #ef4444;">
+                <i class="fas fa-power-off"></i> Cerrar Sesión
+            </a>
         </div>
     </div>
 
     <div class="main-content">
-        
-        <h1>Soluciones Tecnológicas</h1>
-        <p>Expertos en desarrollo de software en Chile.</p>
-        
-        <a href="login.html" id="mainActionBtn" class="btn-cta">INGRESAR AL SISTEMA</a>
+        <header class="top-bar">
+            <div class="status-info">
+                <span id="welcome-text" style="color: #94a3b8;">Bienvenido a la plataforma</span>
+            </div>
+            
+            <div class="notif-wrapper" id="notif-bell" onclick="window.location.href='admin.html'">
+                <i class="fas fa-bell" style="font-size: 1.4rem; color: #94a3b8;"></i>
+                <span id="notif-count" class="badge">0</span>
+            </div>
+        </header>
+
+        <main class="hero-section">
+            <h1>Soluciones en <span>Software</span> y Tecnología Industrial</h1>
+            <p>Gestiona tus tickets de soporte, participa en nuestra comunidad de desarrolladores y mantente al día con las últimas actualizaciones de Bitec Software Chile.</p>
+            <a href="login.html" id="mainActionBtn" class="btn-main">INGRESAR AL SISTEMA</a>
+        </main>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBkkeUy3lWFwRCZp-2gfoEBu5UP2R2vsZk",
@@ -158,30 +180,73 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, async (user) => {
             const authLinks = document.querySelectorAll('.auth-only');
             const linkIngresar = document.getElementById('linkIngresar');
             const mainActionBtn = document.getElementById('mainActionBtn');
+            const welcomeText = document.getElementById('welcome-text');
 
             if (user) {
                 // Usuario logeado
-                authLinks.forEach(link => link.style.display = 'block');
+                authLinks.forEach(link => link.style.display = 'flex');
                 linkIngresar.style.display = 'none';
+                welcomeText.innerText = `Sesión activa: ${user.email}`;
                 
                 mainActionBtn.innerText = "IR A MI PERFIL";
                 mainActionBtn.href = "perfil.html";
+
+                // Verificar Rango Admin
+                verificarRango(user.uid);
             } else {
-                // Usuario visitante
+                // Visitante
                 authLinks.forEach(link => link.style.display = 'none');
                 linkIngresar.style.display = 'flex';
+                welcomeText.innerText = "Bienvenido a la plataforma";
                 
                 mainActionBtn.innerText = "INGRESAR AL SISTEMA";
                 mainActionBtn.href = "login.html";
             }
         });
 
-        document.getElementById('btnCerrarSesion').addEventListener('click', () => {
+        async function verificarRango(uid) {
+            try {
+                const uDoc = await getDoc(doc(db, "usuarios", uid));
+                if (uDoc.exists() && uDoc.data().rango === "admin") {
+                    // Mostrar herramientas de Admin
+                    document.getElementById('admin-nav-item').style.display = 'flex';
+                    document.getElementById('notif-bell').style.display = 'block';
+                    
+                    // Empezar a escuchar tickets nuevos
+                    escucharTicketsPendientes();
+                }
+            } catch (e) { console.error("Error al validar rango:", e); }
+        }
+
+        function escucharTicketsPendientes() {
+            const q = query(collection(db, "tickets"), where("estado", "==", "pendiente"));
+            
+            onSnapshot(q, (snapshot) => {
+                const count = snapshot.size;
+                const badge = document.getElementById('notif-count');
+                const bellIcon = document.querySelector('.fa-bell');
+
+                if (count > 0) {
+                    badge.innerText = count;
+                    badge.style.display = 'block';
+                    badge.classList.add('pulse');
+                    bellIcon.style.color = 'var(--primary)';
+                } else {
+                    badge.style.display = 'none';
+                    badge.classList.remove('pulse');
+                    bellIcon.style.color = '#94a3b8';
+                }
+            });
+        }
+
+        document.getElementById('btnCerrarSesion').addEventListener('click', (e) => {
+            e.preventDefault();
             signOut(auth).then(() => {
                 window.location.reload();
             });
