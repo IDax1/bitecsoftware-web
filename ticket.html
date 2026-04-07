@@ -5,33 +5,35 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Soporte Técnico - Bitec Software</title>
     <style>
-        :root { --primary: #38bdf8; --bg: #0f172a; --card: #1e293b; --border: #334155; --accent: #22c55e; }
+        :root { --primary: #38bdf8; --bg: #0f172a; --card: #1e293b; --border: #334155; --accent: #22c55e; --danger: #ef4444; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
         
         .header { padding: 20px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         .container { max-width: 800px; margin: 40px auto; padding: 0 20px; width: 100%; box-sizing: border-box; }
 
-        /* Formulario de envío */
         .ticket-form { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 40px; }
         h2 { color: var(--primary); margin-top: 0; font-size: 1.5rem; }
-        textarea { width: 100%; background: #0f172a; border: 1px solid var(--border); color: white; padding: 15px; border-radius: 8px; resize: none; min-height: 120px; margin: 15px 0; font-size: 1rem; }
+        textarea { width: 100%; background: #0f172a; border: 1px solid var(--border); color: white; padding: 15px; border-radius: 8px; resize: none; min-height: 100px; margin: 15px 0; font-size: 1rem; box-sizing: border-box; }
         
         .btn-send { background: var(--primary); color: #0f172a; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
-        .btn-send:hover { opacity: 0.9; transform: translateY(-1px); }
-
-        /* Lista de Historial */
-        .history-title { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; color: #94a3b8; }
-        .ticket-item { background: #161b22; border: 1px solid var(--border); padding: 20px; border-radius: 10px; margin-bottom: 15px; }
-        .ticket-meta { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 10px; color: #64748b; }
+        
+        .history-title { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; }
+        
+        .ticket-item { background: #161b22; border: 1px solid var(--border); padding: 20px; border-radius: 10px; margin-bottom: 15px; position: relative; }
+        .ticket-meta { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 10px; color: #64748b; padding-right: 80px; }
         
         .status { padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; text-transform: uppercase; }
         .status-pendiente { background: #f59e0b; color: #0f172a; }
         .status-respondido { background: var(--accent); color: #0f172a; }
 
-        .mensaje-user { font-size: 0.95rem; margin-bottom: 10px; }
-        .respuesta-admin { background: #1e293b; border-left: 3px solid var(--accent); padding: 10px 15px; margin-top: 10px; border-radius: 4px; font-size: 0.9rem; color: #e2e8f0; }
+        .mensaje-user { font-size: 0.95rem; margin-bottom: 10px; color: #e2e8f0; }
+        .respuesta-admin { background: #1e293b; border-left: 4px solid var(--accent); padding: 12px 15px; margin-top: 15px; border-radius: 4px; font-size: 0.9rem; color: #f1f5f9; }
 
+        .btn-cancel { background: none; border: 1px solid var(--danger); color: var(--danger); padding: 4px 10px; border-radius: 5px; cursor: pointer; font-size: 0.75rem; position: absolute; top: 20px; right: 20px; transition: 0.3s; }
+        .btn-cancel:hover { background: var(--danger); color: white; }
+        
         .btn-volver { background: #334155; color: white; text-decoration: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; }
+        .ticket-id { color: var(--primary); font-family: monospace; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -44,20 +46,23 @@
     <div class="container">
         <div class="ticket-form">
             <h2>Crear Nuevo Ticket</h2>
-            <p style="color:#94a3b8; font-size: 0.9rem;">Describe tu problema o solicitud técnica. Te responderemos a la brevedad.</p>
-            <textarea id="txtTicket" placeholder="Ej: Problema con la base de datos de pedidos..."></textarea>
+            <textarea id="txtTicket" placeholder="Describe tu problema técnico detalladamente..."></textarea>
             <button class="btn-send" id="btnEnviarTicket">ENVIAR SOLICITUD</button>
         </div>
 
-        <h3 class="history-title">Mis Tickets Anteriores</h3>
+        <h3 class="history-title">
+            Mis Tickets <span id="countDisplay" style="font-size: 0.9rem; color: var(--primary);">(0)</span>
+        </h3>
+        
         <div id="listaMisTickets">
-            </div>
+            <p style="text-align:center; color:#475569;">Cargando historial...</p>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBkkeUy3lWFwRCZp-2gfoEBu5UP2R2vsZk",
@@ -83,7 +88,7 @@
             }
         });
 
-        // Enviar Ticket
+        // ENVIAR TICKET
         document.getElementById('btnEnviarTicket').onclick = async () => {
             const msj = document.getElementById('txtTicket').value.trim();
             if (!msj) return alert("Por favor, describe tu problema.");
@@ -100,12 +105,14 @@
                 document.getElementById('txtTicket').value = "";
                 alert("Ticket enviado correctamente.");
             } catch (e) {
+                console.error(e);
                 alert("Error al enviar el ticket.");
             }
         };
 
-        // Cargar Historial Personal
+        // CARGAR HISTORIAL PERSONAL
         function cargarMisTickets() {
+            // Consulta optimizada para el usuario actual
             const q = query(
                 collection(db, "tickets"), 
                 where("uid", "==", currentUser.uid),
@@ -114,28 +121,34 @@
 
             onSnapshot(q, (snapshot) => {
                 const container = document.getElementById('listaMisTickets');
+                const countDisplay = document.getElementById('countDisplay');
                 container.innerHTML = "";
+                countDisplay.innerText = `(${snapshot.size})`;
 
                 if(snapshot.empty) {
-                    container.innerHTML = `<p style="text-align:center; color:#475569;">Aún no has enviado tickets.</p>`;
+                    container.innerHTML = `<p style="text-align:center; color:#475569; margin-top:20px;">No tienes tickets registrados.</p>`;
                     return;
                 }
 
                 snapshot.forEach((tDoc) => {
                     const t = tDoc.data();
-                    const fecha = t.fecha ? t.fecha.toDate().toLocaleDateString() : 'Enviando...';
+                    const id = tDoc.id;
+                    const shortId = id.substring(id.length - 6).toUpperCase();
+                    const fecha = t.fecha ? t.fecha.toDate().toLocaleString() : 'Enviando...';
                     
                     const div = document.createElement('div');
                     div.className = "ticket-item";
                     div.innerHTML = `
+                        <button class="btn-cancel" onclick="window.eliminarPropioTicket('${id}')">CANCELAR</button>
                         <div class="ticket-meta">
+                            <span>ID: <span class="ticket-id">#${shortId}</span></span>
                             <span>📅 ${fecha}</span>
                             <span class="status ${t.estado === 'pendiente' ? 'status-pendiente' : 'status-respondido'}">${t.estado}</span>
                         </div>
-                        <div class="mensaje-user"><strong>Problema:</strong> ${t.mensaje}</div>
+                        <div class="mensaje-user"><strong>Tu mensaje:</strong><br>${t.mensaje}</div>
                         ${t.respuesta ? `
                             <div class="respuesta-admin">
-                                <strong>Respuesta de Bitec:</strong><br>${t.respuesta}
+                                <strong style="color:var(--accent)">Soporte Bitec respondió:</strong><br>${t.respuesta}
                             </div>
                         ` : ''}
                     `;
@@ -143,6 +156,17 @@
                 });
             });
         }
+
+        // CANCELAR / BORRAR TICKET
+        window.eliminarPropioTicket = async (id) => {
+            if (confirm("¿Deseas cancelar y borrar permanentemente este ticket?")) {
+                try {
+                    await deleteDoc(doc(db, "tickets", id));
+                } catch (e) {
+                    alert("No se pudo borrar el ticket.");
+                }
+            }
+        };
     </script>
 </body>
 </html>
