@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Bitec Software</title>
+    <style>
+        body { background: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 30px; }
+        h1 { color: #38bdf8; margin: 0; }
+        .btn-volver { background: #475569; color: white; padding: 8px 15px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 0.9rem; }
+        
+        .tabla-container { background: #1e293b; border-radius: 12px; overflow: hidden; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background: #334155; color: #38bdf8; padding: 15px; font-size: 0.9rem; text-transform: uppercase; }
+        td { padding: 15px; border-bottom: 1px solid #334155; font-size: 0.95rem; }
+        tr:hover { background: #1e293b; filter: brightness(1.2); }
+
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: bold; }
+        .badge-admin { background: #22c55e; color: #064e3b; }
+        .badge-user { background: #38bdf8; color: #0c4a6e; }
+
+        select { background: #0f172a; color: white; border: 1px solid #38bdf8; padding: 5px; border-radius: 4px; outline: none; cursor: pointer; }
+        .btn-eliminar { background: #ef4444; color: white; border: none; padding: 6px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-left: 10px; }
+        .btn-eliminar:hover { background: #b91c1c; }
+
+        #loading { text-align: center; padding: 50px; color: #38bdf8; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Panel de Administración Bitec</h1>
+        <a href="perfil.html" class="btn-volver">← VOLVER AL PERFIL</a>
+    </div>
+
+    <div class="tabla-container">
+        <div id="loading">Verificando credenciales de acceso...</div>
+        <table id="tablaUsuarios" style="display: none;">
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Fecha Registro</th>
+                    <th>Rango Actual</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="listaUsuarios">
+                </tbody>
+        </table>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, collection, getDocs, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkkeUy3lWFwRCZp-2gfoEBu5UP2R2vsZk",
+            authDomain: "bitecsoftware-web.firebaseapp.com",
+            projectId: "bitecsoftware-web",
+            storageBucket: "bitecsoftware-web.firebasestorage.app",
+            messagingSenderId: "573214894891",
+            appId: "1:573214894891:web:646628d1e8eb15478bf36e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // 1. EL GUARDIA: Verificar si el usuario es Admin
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const docRef = doc(db, "usuarios", user.uid);
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists() && docSnap.data().rango === "admin") {
+                    document.getElementById('loading').style.display = "none";
+                    document.getElementById('tablaUsuarios').style.display = "table";
+                    cargarUsuarios(); // Si es admin, cargamos la lista
+                } else {
+                    alert("Acceso Prohibido: No eres administrador.");
+                    window.location.href = "perfil.html";
+                }
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+
+        // 2. FUNCIÓN PARA CARGAR USUARIOS
+        async function cargarUsuarios() {
+            const querySnapshot = await getDocs(collection(db, "usuarios"));
+            const tbody = document.getElementById('listaUsuarios');
+            tbody.innerHTML = ""; // Limpiar tabla
+
+            querySnapshot.forEach((usuarioDoc) => {
+                const u = usuarioDoc.data();
+                const id = usuarioDoc.id;
+
+                const fila = document.createElement('tr');
+                fila.innerHTML = `
+                    <td>${u.correo}</td>
+                    <td>${u.fechaRegistro || 'S/N'}</td>
+                    <td><span class="badge ${u.rango === 'admin' ? 'badge-admin' : 'badge-user'}">${u.rango}</span></td>
+                    <td>
+                        <select onchange="cambiarRango('${id}', this.value)">
+                            <option value="">Cambiar Rango...</option>
+                            <option value="usuario">Hacer Usuario</option>
+                            <option value="admin">Hacer Admin</option>
+                        </select>
+                        <button class="btn-eliminar" onclick="eliminarUsuario('${id}')">Eliminar</button>
+                    </td>
+                `;
+                tbody.appendChild(fila);
+            });
+        }
+
+        // 3. FUNCIONES DE ACCIÓN (Globales para que funcionen en el HTML)
+        window.cambiarRango = async (uid, nuevoRango) => {
+            if (!nuevoRango) return;
+            if (confirm(`¿Seguro que quieres cambiar el rango a ${nuevoRango}?`)) {
+                await updateDoc(doc(db, "usuarios", uid), { rango: nuevoRango });
+                location.reload(); // Recargar para ver cambios
+            }
+        };
+
+        window.eliminarUsuario = async (uid) => {
+            if (confirm("¿ESTÁS SEGURO? Esto borrará el perfil de la base de datos (no la cuenta de Auth).")) {
+                await deleteDoc(doc(db, "usuarios", uid));
+                location.reload();
+            }
+        };
+    </script>
+</body>
+</html>
