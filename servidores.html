@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estado del Servidor - Bitec Software</title>
+    <style>
+        //css integrado
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0d1117;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .status-container {
+            text-align: center;
+            background: #161b22;
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #30363d;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            max-width: 500px;
+            width: 90%;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+            color: #58a6ff;
+        }
+
+        /* specs server*/
+        .server-card {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        .spec-item {
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #21262d;
+            padding-bottom: 5px;
+        }
+
+        .spec-label {
+            color: #8b949e;
+            font-weight: bold;
+        }
+
+        .spec-value {
+            color: #c9d1d9;
+        }
+
+        /* Indicador de Estado */
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: #21262d;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1rem;
+            color: #ff7b72; /* Color rojizo */
+            border: 1px solid #ff7b7233;
+            margin-bottom: 30px;
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            background-color: #f85149; /* Rojo */
+            border-radius: 50%;
+            box-shadow: 0 0 10px #f85149;
+            animation: pulse-red 2s infinite;
+        }
+
+        @keyframes pulse-red {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .btn-back {
+            background-color: transparent;
+            color: #8b949e;
+            border: 1px solid #30363d;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-back:hover {
+            background-color: #21262d;
+            color: #ffffff;
+            border-color: #8b949e;
+        }
+
+        .footer-tag {
+            margin-top: 25px;
+            font-size: 0.75rem;
+            color: #484f58;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="status-container">
+        <h1>Estado de Infraestructura</h1>
+
+        <div class="server-card">
+            <div class="spec-item">
+                <span class="spec-label">Procesador:</span>
+                <span class="spec-value">Intel Xeon X3470</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Memoria RAM:</span>
+                <span class="spec-value">16GB DDR3</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Almacenamiento:</span>
+                <span class="spec-value">2x 1TB HDD (RAID)</span>
+            </div>
+            <div class="spec-item">
+                <span class="spec-label">Ubicación:</span>
+                <span class="spec-value">Bitec HQ - Chile</span>
+            </div>
+        </div>
+
+        <div class="status-badge">
+            <div class="status-dot"></div>
+            SISTEMA OFFLINE / APAGADO
+        </div>
+
+        <br>
+        <a href="index.html" class="btn-back">VOLVER AL INICIO</a>
+
+        <div class="footer-tag">
+            Monitor de Sistema v1.0
+        </div>
+    </div>
+
+</body>
+</html>
