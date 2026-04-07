@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soporte Técnico - Bitec Software</title>
+    <style>
+        :root { --primary: #38bdf8; --bg: #0f172a; --card: #1e293b; --border: #334155; --accent: #22c55e; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        
+        .header { padding: 20px; background: var(--card); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .container { max-width: 800px; margin: 40px auto; padding: 0 20px; width: 100%; box-sizing: border-box; }
+
+        /* Formulario de envío */
+        .ticket-form { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid var(--border); margin-bottom: 40px; }
+        h2 { color: var(--primary); margin-top: 0; font-size: 1.5rem; }
+        textarea { width: 100%; background: #0f172a; border: 1px solid var(--border); color: white; padding: 15px; border-radius: 8px; resize: none; min-height: 120px; margin: 15px 0; font-size: 1rem; }
+        
+        .btn-send { background: var(--primary); color: #0f172a; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
+        .btn-send:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        /* Lista de Historial */
+        .history-title { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; color: #94a3b8; }
+        .ticket-item { background: #161b22; border: 1px solid var(--border); padding: 20px; border-radius: 10px; margin-bottom: 15px; }
+        .ticket-meta { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 10px; color: #64748b; }
+        
+        .status { padding: 3px 8px; border-radius: 4px; font-weight: bold; font-size: 0.7rem; text-transform: uppercase; }
+        .status-pendiente { background: #f59e0b; color: #0f172a; }
+        .status-respondido { background: var(--accent); color: #0f172a; }
+
+        .mensaje-user { font-size: 0.95rem; margin-bottom: 10px; }
+        .respuesta-admin { background: #1e293b; border-left: 3px solid var(--accent); padding: 10px 15px; margin-top: 10px; border-radius: 4px; font-size: 0.9rem; color: #e2e8f0; }
+
+        .btn-volver { background: #334155; color: white; text-decoration: none; padding: 8px 15px; border-radius: 6px; font-weight: bold; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2 style="margin:0; font-size: 1.2rem;">🎟️ Centro de Soporte</h2>
+        <a href="index.html" class="btn-volver">🏠 Volver</a>
+    </div>
+
+    <div class="container">
+        <div class="ticket-form">
+            <h2>Crear Nuevo Ticket</h2>
+            <p style="color:#94a3b8; font-size: 0.9rem;">Describe tu problema o solicitud técnica. Te responderemos a la brevedad.</p>
+            <textarea id="txtTicket" placeholder="Ej: Problema con la base de datos de pedidos..."></textarea>
+            <button class="btn-send" id="btnEnviarTicket">ENVIAR SOLICITUD</button>
+        </div>
+
+        <h3 class="history-title">Mis Tickets Anteriores</h3>
+        <div id="listaMisTickets">
+            </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkkeUy3lWFwRCZp-2gfoEBu5UP2R2vsZk",
+            authDomain: "bitecsoftware-web.firebaseapp.com",
+            projectId: "bitecsoftware-web",
+            storageBucket: "bitecsoftware-web.firebasestorage.app",
+            messagingSenderId: "573214894891",
+            appId: "1:573214894891:web:646628d1e8eb15478bf36e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        let currentUser = null;
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                cargarMisTickets();
+            } else {
+                window.location.href = "login.html";
+            }
+        });
+
+        // Enviar Ticket
+        document.getElementById('btnEnviarTicket').onclick = async () => {
+            const msj = document.getElementById('txtTicket').value.trim();
+            if (!msj) return alert("Por favor, describe tu problema.");
+
+            try {
+                await addDoc(collection(db, "tickets"), {
+                    usuario: currentUser.email,
+                    uid: currentUser.uid,
+                    mensaje: msj,
+                    estado: "pendiente",
+                    fecha: serverTimestamp(),
+                    respuesta: ""
+                });
+                document.getElementById('txtTicket').value = "";
+                alert("Ticket enviado correctamente.");
+            } catch (e) {
+                alert("Error al enviar el ticket.");
+            }
+        };
+
+        // Cargar Historial Personal
+        function cargarMisTickets() {
+            const q = query(
+                collection(db, "tickets"), 
+                where("uid", "==", currentUser.uid),
+                orderBy("fecha", "desc")
+            );
+
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById('listaMisTickets');
+                container.innerHTML = "";
+
+                if(snapshot.empty) {
+                    container.innerHTML = `<p style="text-align:center; color:#475569;">Aún no has enviado tickets.</p>`;
+                    return;
+                }
+
+                snapshot.forEach((tDoc) => {
+                    const t = tDoc.data();
+                    const fecha = t.fecha ? t.fecha.toDate().toLocaleDateString() : 'Enviando...';
+                    
+                    const div = document.createElement('div');
+                    div.className = "ticket-item";
+                    div.innerHTML = `
+                        <div class="ticket-meta">
+                            <span>📅 ${fecha}</span>
+                            <span class="status ${t.estado === 'pendiente' ? 'status-pendiente' : 'status-respondido'}">${t.estado}</span>
+                        </div>
+                        <div class="mensaje-user"><strong>Problema:</strong> ${t.mensaje}</div>
+                        ${t.respuesta ? `
+                            <div class="respuesta-admin">
+                                <strong>Respuesta de Bitec:</strong><br>${t.respuesta}
+                            </div>
+                        ` : ''}
+                    `;
+                    container.appendChild(div);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
