@@ -16,6 +16,7 @@
         textarea { width: 100%; background: #0f172a; border: 1px solid var(--border); color: white; padding: 15px; border-radius: 8px; resize: none; min-height: 100px; margin: 15px 0; font-size: 1rem; box-sizing: border-box; }
         
         .btn-send { background: var(--primary); color: #0f172a; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; width: 100%; transition: 0.3s; }
+        .btn-send:hover { opacity: 0.9; }
         
         .history-title { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; }
         
@@ -39,8 +40,8 @@
 <body>
 
     <div class="header">
-        <h2 style="margin:0; font-size: 1.2rem;">Centro de Soporte</h2>
-        <a href="index.html" class="btn-volver">Volver</a>
+        <h2 style="margin:0; font-size: 1.2rem;">🎟️ Centro de Soporte</h2>
+        <a href="index.html" class="btn-volver">🏠 Volver</a>
     </div>
 
     <div class="container">
@@ -55,16 +56,15 @@
         </h3>
         
         <div id="listaMisTickets">
-            </div>
+            <p style="text-align:center; color:#475569;">Iniciando sesión...</p>
+        </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        
-        // REIMPORTACIÓN DE FIRESTORE (Asegurando compatibilidad)
-        import { } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
         const firebaseConfig = {
             apiKey: "AIzaSyBkkeUy3lWFwRCZp-2gfoEBu5UP2R2vsZk",
             authDomain: "bitecsoftware-web.firebaseapp.com",
@@ -76,7 +76,7 @@
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
-        const db = window.location.href.includes('localhost') ? null : (await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js")).getFirestore(app);
+        const db = getFirestore(app);
         
         let currentUser = null;
 
@@ -93,6 +93,7 @@
         document.getElementById('btnEnviarTicket').onclick = async () => {
             const msj = document.getElementById('txtTicket').value.trim();
             if (!msj) return alert("Por favor, describe tu problema.");
+            if (!currentUser) return alert("Debes estar conectado.");
 
             try {
                 await addDoc(collection(db, "tickets"), {
@@ -104,16 +105,15 @@
                     respuesta: ""
                 });
                 document.getElementById('txtTicket').value = "";
-                alert("Ticket enviado correctamente.");
+                alert("✅ Ticket enviado correctamente.");
             } catch (e) {
                 console.error("Error al enviar:", e);
-                alert("Error de conexión. Inténtalo de nuevo.");
+                alert("Error al enviar el ticket. Revisa la consola.");
             }
         };
 
         // CARGAR HISTORIAL EN TIEMPO REAL
         function cargarMisTickets() {
-            // Nota: Si no carga, revisa la consola del navegador F12 para hacer clic en el link de "Create Index" de Firebase
             const q = query(
                 collection(db, "tickets"), 
                 where("uid", "==", currentUser.uid),
@@ -135,6 +135,7 @@
                     const t = tDoc.data();
                     const id = tDoc.id;
                     const shortId = id.substring(0, 6).toUpperCase();
+                    // Manejo de fecha mientras se sube al servidor
                     const fecha = t.fecha ? t.fecha.toDate().toLocaleString() : 'Enviando...';
                     
                     const div = document.createElement('div');
@@ -157,18 +158,20 @@
                 });
             }, (error) => {
                 console.error("Error en Snapshot:", error);
-                document.getElementById('listaMisTickets').innerHTML = "<p style='color:red'>Error al cargar el historial. Revisa los índices de Firebase.</p>";
+                if (error.code === 'failed-precondition') {
+                    document.getElementById('listaMisTickets').innerHTML = "<p style='color:orange; text-align:center;'>Configurando base de datos... Por favor, abre la consola (F12) y haz clic en el enlace de Firebase para crear el índice.</p>";
+                } else {
+                    document.getElementById('listaMisTickets').innerHTML = "<p style='color:red; text-align:center;'>Error al cargar el historial.</p>";
+                }
             });
         }
 
-        // FUNCIÓN PARA QUE EL USUARIO CANCELE SU TICKET
         window.eliminarPropioTicket = async (id) => {
-            if (confirm("¿Estás seguro de que quieres cancelar este ticket? Se borrará permanentemente.")) {
+            if (confirm("¿Estás seguro de que quieres cancelar este ticket?")) {
                 try {
                     await deleteDoc(doc(db, "tickets", id));
-                    alert("Ticket cancelado.");
                 } catch (e) {
-                    alert("No se pudo eliminar el ticket.");
+                    alert("No se pudo eliminar.");
                 }
             }
         };
