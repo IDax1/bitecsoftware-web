@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Bitec Software</title>
+    <style>
+        body { background: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #1e293b; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 15px rgba(0,0,0,0.3); width: 350px; text-align: center; }
+        h2 { color: #38bdf8; margin-bottom: 1.5rem; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+        .btn-main { width: 100%; padding: 12px; background: #38bdf8; border: none; border-radius: 6px; color: #0f172a; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-main:hover { background: #0ea5e9; }
+        .link { font-size: 0.8rem; color: #94a3b8; margin-top: 15px; display: block; text-decoration: none; }
+        .link:hover { color: #38bdf8; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h2>Bitec Software</h2>
+        <p>Bienvenido de vuelta</p>
+        <input type="email" id="email" placeholder="Correo electrónico">
+        <input type="password" id="password" placeholder="Contraseña">
+        <button id="btnIngresar" class="btn-main">INGRESAR</button>
+        <a href="registro.html" class="link">¿No tienes cuenta? Regístrate aquí</a>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkkeUy3lWFwRCZp-2gfoEBu5UP2R2vsZk",
+            authDomain: "bitecsoftware-web.firebaseapp.com",
+            projectId: "bitecsoftware-web",
+            storageBucket: "bitecsoftware-web.firebasestorage.app",
+            messagingSenderId: "573214894891",
+            appId: "1:573214894891:web:646628d1e8eb15478bf36e",
+            measurementId: "G-2EW80575TR"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        document.getElementById('btnIngresar').addEventListener('click', () => {
+            const email = document.getElementById('email').value;
+            const pass = document.getElementById('password').value;
+
+            signInWithEmailAndPassword(auth, email, pass)
+                .then(() => {
+                    window.location.href = "perfil.html"; // Nos lleva al perfil
+                })
+                .catch((error) => alert("Error al ingresar: " + error.message));
+        });
+    </script>
+</body>
+</html>
