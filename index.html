@@ -3,164 +3,187 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitec Software - Mantenimiento</title>
+    <title>Bitec Software Chile - Inicio</title>
     <style>
-        /* CSS INTEGRADO */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root { 
+            --primary: #38bdf8; 
+            --bg: #0f172a; 
+            --sidebar: #1e293b; 
+            --text: #f8fafc; 
+            --accent: #22c55e;
         }
 
-        body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background-color: #0d1117; /* Fondo oscuro profesional */
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { 
+            font-family: 'Segoe UI', sans-serif; 
+            background-color: var(--bg); 
+            color: var(--text); 
+            display: flex; 
+            height: 100vh; 
+            overflow: hidden; 
         }
 
-        .main-container {
-            text-align: center;
-            background: #161b22;
-            padding: 40px;
-            border-radius: 20px;
-            border: 1px solid #30363d;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            max-width: 450px;
-            width: 90%;
+        /* BARRA LATERAL (SIDEBAR) */
+        .sidebar { 
+            width: 280px; 
+            background: var(--sidebar); 
+            border-right: 1px solid #334155; 
+            display: flex; 
+            flex-direction: column; 
+            padding: 30px 20px; 
         }
 
-        /* Contenedor de Bitecito */
-        .image-container {
-            margin-bottom: 25px;
+        .logo-container { text-align: center; margin-bottom: 40px; }
+        .logo-text { font-size: 1.4rem; font-weight: bold; color: var(--primary); letter-spacing: 1px; }
+
+        .nav-menu { flex: 1; }
+        .nav-link { 
+            display: flex; 
+            align-items: center; 
+            color: #94a3b8; 
+            text-decoration: none; 
+            padding: 12px 15px; 
+            border-radius: 8px; 
+            margin-bottom: 8px; 
+            transition: 0.3s; 
+            font-weight: 500;
         }
 
-        .pixel-art {
-            width: 200px;
-            height: 200px;
-            /* El truco mágico para que el pixel art no se vea borroso */
+        .nav-link:hover { background: #334155; color: white; }
+        .nav-link.active { background: var(--primary); color: var(--bg); }
+        
+        /* Secciones que cambian según el login */
+        .auth-only { display: none; } 
+        .btn-logout { 
+            width: 100%; 
+            background: #ef4444; 
+            color: white; 
+            border: none; 
+            padding: 12px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            margin-top: 20px;
+        }
+
+        /* CONTENIDO PRINCIPAL */
+        .main-content { 
+            flex: 1; 
+            padding: 60px; 
+            overflow-y: auto; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            text-align: center; 
+        }
+
+        .hero-img { 
+            width: 180px; 
             image-rendering: pixelated; 
-            border-radius: 12px;
-            transition: transform 0.3s ease;
+            margin-bottom: 20px; 
+            border-radius: 15px;
         }
 
-        .pixel-art:hover {
-            transform: scale(1.05);
-        }
+        h1 { font-size: 2.8rem; margin-bottom: 15px; color: var(--primary); }
+        p { font-size: 1.1rem; color: #94a3b8; max-width: 600px; line-height: 1.6; margin-bottom: 30px; }
 
-        h1 {
-            font-size: 1.8rem;
-            margin-bottom: 15px;
-            color: #58a6ff; /* Azul Bitec */
-        }
-
-        p {
+        .btn-cta { 
+            background: var(--accent); 
+            color: white; 
+            padding: 15px 35px; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            font-weight: bold; 
             font-size: 1rem;
-            color: #8b949e;
-            line-height: 1.5;
-            margin-bottom: 30px;
+            transition: 0.3s;
         }
+        .btn-cta:hover { transform: scale(1.05); filter: brightness(1.1); }
 
-        /* Barra de progreso con estilo "Tech" */
-        .loader-wrapper {
-            background: #21262d;
-            height: 8px;
-            width: 100%;
-            border-radius: 10px;
-            position: relative;
-            overflow: hidden;
-            margin-bottom: 20px;
-        }
-
-        .loader-bar {
-            position: absolute;
-            height: 100%;
-            width: 50%;
-            background: linear-gradient(90deg, #58a6ff, #f39c12); /* Azul a Naranja */
-            border-radius: 10px;
-            animation: moveLoader 2s infinite ease-in-out;
-        }
-
-        @keyframes moveLoader {
-            0% { left: -50%; }
-            100% { left: 100%; }
-        }
-
-        .btn-update {
-            background-color: #238636; /* Verde éxito */
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background 0.2s;
-        }
-
-        .btn-update:hover {
-            background-color: #2ea043;
-        }
-
-        .btn-adminlogin {
-            background-color: #ff0000; /* Verde éxito */
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 6px;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 0.9rem;
-            transition: background 0.2s;
-        }
-
-        .btn-adminlogin:hover {
-            background-color: #2ea043;
-        }
-
-
-        .footer-tag {
-            margin-top: 25px;
-            font-size: 0.75rem;
-            color: #484f58;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        .footer-info { margin-top: 50px; font-size: 0.8rem; color: #475569; }
     </style>
 </head>
 <body>
 
-    <div class="main-container">
-        <div class="image-container">
-            <a href="https://ibb.co/Mkm3fbFD">
-                <img src="https://i.ibb.co/3mnLvwgy/bitecito-mantenimiento.png" 
-                     alt="Bitecito Mantenimiento" 
-                     class="pixel-art">
-            </a>
+    <div class="sidebar">
+        <div class="logo-container">
+            <div class="logo-text">BITEC SOFTWARE</div>
         </div>
 
-        <h1>Trabajando en Bitec Software</h1>
-        <p>Estamos realizando mejoras técnicas en la pagina. Bitecito está supervisando la actualización.</p>
+        <nav class="nav-menu">
+            <a href="index.html" class="nav-link active">🏠 Inicio</a>
+            <a href="login.html" id="linkIngresar" class="nav-link">🔑 Ingresar</a>
+            
+            <a href="perfil.html" class="nav-link auth-only">👤 Mi Perfil</a>
+            <a href="mensajeria.html" class="nav-link auth-only">💬 Mensajería & Tickets</a>
+        </nav>
 
-        <div class="loader-wrapper">
-            <div class="loader-bar"></div>
-        </div>
-
-        <button class="btn-update" onclick="location.href='servidores.html'">REVISAR ESTADO</button>
-
-        
-        <div class="footer-tag">
-            Bitec Software Chile 2026
-        </div>
-        <div>
-         <p>¿Eres admin? Ingresa</p>
-        <button class="btn-adminlogin" onclick="location.href='login.html'">Ingresar</button>
+        <div id="logoutWrapper" class="auth-only">
+            <button id="btnCerrarSesion" class="btn-logout">Cerrar Sesión</button>
         </div>
     </div>
 
+    <div class="main-content">
+        <img src="https://i.ibb.co/3mnLvwgy/bitecito-mantenimiento.png" alt="Bitecito" class="hero-img"> <h1>Soluciones Tecnológicas</h1>
+        <p>
+            Bienvenidos a Bitec Software Chile. Somos especialistas en desarrollo de sistemas personalizados, 
+            gestión de bases de datos y restauración técnica de hardware retro.
+        </p>
+
+        <a href="login.html" id="mainActionBtn" class="btn-cta">EMPEZAR AHORA</a>
+
+        <div class="footer-info">
+            Bitec Software Chile 2026 • Innovación y Soporte Técnico
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // Configuración de tu proyecto Bitec
+        const firebaseConfig = {
+            apiKey: "AIzaSyBkkeUy3lWFwRCZp-2gfoEBu5UP2R2vsZk",
+            authDomain: "bitecsoftware-web.firebaseapp.com",
+            projectId: "bitecsoftware-web",
+            storageBucket: "bitecsoftware-web.firebasestorage.app",
+            messagingSenderId: "573214894891",
+            appId: "1:573214894891:web:646628d1e8eb15478bf36e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        // Lógica para actualizar la barra lateral según el estado del usuario
+        onAuthStateChanged(auth, (user) => {
+            const authLinks = document.querySelectorAll('.auth-only');
+            const linkIngresar = document.getElementById('linkIngresar');
+            const mainActionBtn = document.getElementById('mainActionBtn');
+
+            if (user) {
+                // Usuario logeado: mostramos perfil y mensajería
+                authLinks.forEach(link => link.style.display = 'block');
+                linkIngresar.style.display = 'none';
+                
+                // Cambiamos el botón central
+                mainActionBtn.innerText = "IR A MI PERFIL";
+                mainActionBtn.href = "perfil.html";
+            } else {
+                // Usuario visitante
+                authLinks.forEach(link => link.style.display = 'none');
+                linkIngresar.style.display = 'flex';
+                mainActionBtn.innerText = "INGRESAR AL SISTEMA";
+                mainActionBtn.href = "login.html";
+            }
+        });
+
+        // Función de Cerrar Sesión
+        document.getElementById('btnCerrarSesion').addEventListener('click', () => {
+            signOut(auth).then(() => {
+                window.location.reload(); // Recarga para volver al estado inicial
+            });
+        });
+    </script>
 </body>
 </html>
