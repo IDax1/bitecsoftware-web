@@ -10,15 +10,26 @@
         
         .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--border); background: var(--card); }
         .nav-tabs { display: flex; background: var(--card); border-bottom: 1px solid var(--border); padding: 0 20px; }
-        .tab-btn { background: none; border: none; color: #94a3b8; padding: 15px 25px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; transition: 0.3s; }
+        
+        .tab-btn { background: none; border: none; color: #94a3b8; padding: 15px 25px; cursor: pointer; font-weight: bold; border-bottom: 3px solid transparent; transition: 0.3s; display: flex; align-items: center; gap: 8px; }
         .tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); }
         
+        .notification-badge { background: var(--danger); color: white; font-size: 0.75rem; padding: 2px 8px; border-radius: 10px; display: none; }
+
         .content { padding: 30px; max-width: 1200px; margin: 0 auto; }
         .section { display: none; }
         .section.active { display: block; }
 
-        /* Estilos de Tickets */
-        .ticket-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; position: relative; }
+        /* Tickets UI */
+        .ticket-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; border-left: 5px solid transparent; transition: 0.3s; }
+        .ticket-card.pendiente { border-left-color: var(--accent); animation: pulse-border 2s infinite; }
+        
+        @keyframes pulse-border {
+            0% { border-left-color: var(--accent); }
+            50% { border-left-color: #7c5a14; }
+            100% { border-left-color: var(--accent); }
+        }
+
         .ticket-header { display: flex; justify-content: space-between; margin-bottom: 15px; }
         .ticket-id { font-family: monospace; color: var(--primary); font-weight: bold; font-size: 1.1rem; }
         
@@ -26,14 +37,12 @@
         .status-pendiente { background: var(--accent); color: #0f172a; }
         .status-respondido { background: var(--success); color: #0f172a; }
 
-        .user-info { font-size: 0.85rem; color: #94a3b8; margin-bottom: 10px; }
-        .msg-box { background: #0f172a; padding: 15px; border-radius: 8px; border-left: 4px solid var(--primary); margin: 10px 0; font-size: 0.95rem; }
+        .msg-box { background: #0f172a; padding: 15px; border-radius: 8px; margin: 10px 0; font-size: 0.95rem; border: 1px solid var(--border); }
+        textarea { width: 100%; background: #0b1120; color: white; border: 1px solid var(--border); border-radius: 8px; padding: 12px; resize: none; margin-top: 10px; box-sizing: border-box; font-family: inherit; }
         
-        textarea { width: 100%; background: #0b1120; color: white; border: 1px solid var(--border); border-radius: 8px; padding: 12px; resize: none; margin-top: 10px; font-family: inherit; box-sizing: border-box; }
-        
-        .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; margin-top: 10px; }
-        .btn-primary { background: var(--primary); color: #0f172a; width: 100%; }
-        .btn-danger { background: none; border: 1px solid var(--danger); color: var(--danger); font-size: 0.8rem; margin-top: 0; }
+        .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-primary { background: var(--primary); color: #0f172a; width: 100%; margin-top: 10px; }
+        .btn-danger { background: none; border: 1px solid var(--danger); color: var(--danger); }
         .btn-danger:hover { background: var(--danger); color: white; }
 
         /* Usuarios Table */
@@ -45,18 +54,23 @@
 <body>
 
     <div class="header">
-        <h1 style="font-size: 1.2rem; margin:0;">🛡️ Panel de Administración - Bitec</h1>
-        <a href="perfil.html" style="color: white; text-decoration: none; font-size: 0.9rem;">← Volver al Perfil</a>
+        <h1 style="font-size: 1.2rem; margin:0;">🛡️ Panel Admin - Bitec</h1>
+        <div style="display:flex; gap:10px;">
+            <button onclick="solicitarPermisos()" style="background:none; border:1px solid var(--primary); color:var(--primary); padding:5px 10px; border-radius:5px; cursor:pointer; font-size:0.8rem;">🔔 Activar Alertas</button>
+            <a href="perfil.html" style="color: white; text-decoration: none; font-size: 0.9rem; padding-top:5px;">← Volver</a>
+        </div>
     </div>
 
     <div class="nav-tabs">
-        <button class="tab-btn active" onclick="window.switchTab('tickets')">Tickets</button>
+        <button class="tab-btn active" onclick="window.switchTab('tickets')">
+            Tickets <span id="badgeTickets" class="notification-badge">0</span>
+        </button>
         <button class="tab-btn" onclick="window.switchTab('usuarios')">Usuarios</button>
     </div>
 
     <div class="content">
         <div id="sec-tickets" class="section active">
-            <h2 id="ticket-header-title">Gestión de Tickets</h2>
+            <h2 id="ticket-title">Gestión de Tickets</h2>
             <div id="listaTickets">Cargando tickets...</div>
         </div>
 
@@ -78,7 +92,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, query, onSnapshot, doc, updateDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, query, onSnapshot, doc, updateDoc, deleteDoc, getDoc, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBkkeUy3lWFwRCZp-2gfoEBu5UP2R2vsZk",
@@ -93,6 +107,8 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
+        let primerCarga = true;
+
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const uDoc = await getDoc(doc(db, "usuarios", user.uid));
@@ -100,7 +116,6 @@
                     cargarTicketsAdmin();
                     cargarUsuarios();
                 } else {
-                    alert("Acceso denegado.");
                     window.location.href = "perfil.html";
                 }
             } else {
@@ -108,48 +123,78 @@
             }
         });
 
+        window.solicitarPermisos = () => {
+            Notification.requestPermission().then(p => {
+                if(p === 'granted') alert("Notificaciones activadas.");
+            });
+        };
+
         function cargarTicketsAdmin() {
-            onSnapshot(collection(db, "tickets"), (snapshot) => {
+            const q = query(collection(db, "tickets"), orderBy("fecha", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
                 const container = document.getElementById('listaTickets');
+                const badge = document.getElementById('badgeTickets');
                 container.innerHTML = "";
-                let total = 0;
+                
+                let pendientes = 0;
+                let nuevoTicketEncontrado = false;
+
+                // Detectar nuevos tickets para notificaciones push
+                snapshot.docChanges().forEach(change => {
+                    if (change.type === "added" && !primerCarga) {
+                        nuevoTicketEncontrado = true;
+                    }
+                });
 
                 snapshot.forEach((tDoc) => {
                     const t = tDoc.data();
                     const id = tDoc.id;
-                    const shortId = id.substring(0, 6).toUpperCase(); // Sincronizado con el usuario
-                    const fecha = t.fecha ? t.fecha.toDate().toLocaleString() : '---';
-                    total++;
+                    const shortId = id.substring(0, 6).toUpperCase();
+                    const fecha = t.fecha ? t.fecha.toDate().toLocaleString() : 'Reciente...';
+                    
+                    if (t.estado === "pendiente") pendientes++;
 
                     const card = document.createElement('div');
-                    card.className = "ticket-card";
+                    card.className = `ticket-card ${t.estado === 'pendiente' ? 'pendiente' : ''}`;
                     card.innerHTML = `
                         <div class="ticket-header">
                             <div>
                                 <span class="ticket-id">#${shortId}</span>
-                                <div class="user-info">${t.usuario}</div>
+                                <div style="font-size:0.8rem; color:#94a3b8;">${t.usuario}</div>
                             </div>
                             <div style="display:flex; align-items:center; gap:10px;">
                                 <span class="status-badge ${t.estado === 'pendiente' ? 'status-pendiente' : 'status-respondido'}">${t.estado}</span>
-                                <button class="btn btn-danger" onclick="window.eliminarTicket('${id}')">🗑️</button>
+                                <button class="btn btn-danger" style="padding:5px 8px;" onclick="window.eliminarTicket('${id}')">🗑️</button>
                             </div>
                         </div>
-                        
-                        <div class="msg-box"><strong>Consulta:</strong><br>${t.mensaje}</div>
-
-                        ${t.respuesta ? `
-                            <div style="margin-top:10px; color:var(--success); font-size:0.9rem;">
-                                <strong>Respuesta enviada:</strong> ${t.respuesta}
-                            </div>
-                        ` : `
-                            <textarea id="resp-${id}" placeholder="Escribe la respuesta para el usuario..."></textarea>
+                        <div class="msg-box"><strong>Mensaje:</strong><br>${t.mensaje}</div>
+                        ${t.estado === 'pendiente' ? `
+                            <textarea id="resp-${id}" placeholder="Escribe la solución técnica..."></textarea>
                             <button class="btn btn-primary" onclick="window.responderTicket('${id}')">ENVIAR RESPUESTA</button>
-                        `}
+                        ` : `<div style="color:var(--success); font-size:0.9rem; margin-top:10px;"><strong>✅ Respondido:</strong> ${t.respuesta}</div>`}
                         <div style="text-align:right; font-size:0.7rem; color:#475569; margin-top:10px;">📅 ${fecha}</div>
                     `;
                     container.appendChild(card);
                 });
-                document.getElementById('ticket-header-title').innerText = `Gestión de Tickets (${total})`;
+
+                // Notificación Push
+                if (nuevoTicketEncontrado && Notification.permission === "granted") {
+                    new Notification("Bitec Support", { body: "¡Nuevo ticket de soporte recibido!", icon: "favicon.ico" });
+                }
+
+                // Actualizar contadores y título
+                if (pendientes > 0) {
+                    badge.innerText = pendientes;
+                    badge.style.display = "inline-block";
+                    document.title = `(${pendientes}) Panel Admin - Bitec`;
+                } else {
+                    badge.style.display = "none";
+                    document.title = `Panel Admin - Bitec`;
+                }
+                document.getElementById('ticket-title').innerText = `Gestión de Tickets (${snapshot.size})`;
+                
+                primerCarga = false;
             });
         }
 
@@ -182,12 +227,12 @@
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             document.getElementById(`sec-${target}`).classList.add('active');
-            event.target.classList.add('active');
+            event.currentTarget.classList.add('active');
         };
 
         window.responderTicket = async (id) => {
             const texto = document.getElementById(`resp-${id}`).value.trim();
-            if (!texto) return alert("Escribe una respuesta primero.");
+            if (!texto) return alert("Escribe una respuesta.");
             await updateDoc(doc(db, "tickets", id), {
                 respuesta: texto,
                 estado: "respondido"
