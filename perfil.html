@@ -5,55 +5,100 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mi Perfil - Bitec Software</title>
     <style>
-        body { background: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background: #1e293b; width: 400px; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #334155; text-align: center; }
-        h1 { color: #38bdf8; font-size: 1.5rem; border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 20px; }
-        p { margin: 15px 0; color: #94a3b8; text-align: left; }
-        span { color: #38bdf8; font-weight: bold; }
-        .rango-badge { background: #38bdf8; color: #0f172a; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; text-transform: uppercase; font-weight: bold; }
+        :root { --primary: #38bdf8; --bg: #0f172a; --card: #1e293b; --border: #334155; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         
-        /* Botones principales */
-        .btn-logout { width: 100%; margin-top: 10px; padding: 12px; background: #ef4444; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
-        .btn-logout:hover { background: #dc2626; }
-        
-        .btn-admin { width: 100%; margin-top: 10px; padding: 12px; background: #22c55e; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; display: none; transition: 0.3s; text-decoration: none; }
-        .btn-admin:hover { background: #16a34a; }
+        .container { 
+            background: var(--card); 
+            width: 420px; 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); 
+            border: 1px solid var(--border); 
+            text-align: center; 
+        }
 
-        /* Estilo para el nuevo botón Home */
-        .btn-home { 
-            width: 100%; 
-            margin-top: 20px; 
-            padding: 12px; 
-            background: #334155; 
-            border: 1px solid #38bdf8; 
+        h1 { color: var(--primary); font-size: 1.5rem; border-bottom: 1px solid var(--border); padding-bottom: 15px; margin-bottom: 20px; }
+        
+        .info-group { margin-bottom: 20px; text-align: left; }
+        label { display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 5px; }
+        .data-text { font-weight: bold; color: white; margin-bottom: 10px; display: block; }
+
+        /* Campo de Nombre */
+        .input-group { display: flex; gap: 10px; margin-top: 5px; }
+        input { 
+            flex: 1; 
+            background: #0f172a; 
+            border: 1px solid var(--border); 
             color: white; 
+            padding: 10px; 
+            border-radius: 8px; 
+            outline: none;
+        }
+        input:focus { border-color: var(--primary); }
+
+        button { 
+            padding: 10px 20px; 
             border-radius: 8px; 
             cursor: pointer; 
             font-weight: bold; 
             transition: 0.3s; 
-            text-transform: uppercase;
+            border: none;
+            width: 100%;
+            margin-top: 10px;
         }
-        .btn-home:hover { background: #475569; border-color: white; }
+
+        .btn-save { background: var(--primary); color: #0f172a; }
+        .btn-save:hover { opacity: 0.9; transform: translateY(-1px); }
+
+        .btn-admin { background: #f59e0b; color: #0f172a; display: none; margin-top: 15px; }
+        
+        .btn-volver { background: #475569; color: white; margin-top: 10px; }
+        .btn-salir { background: #ef4444; color: white; margin-top: 10px; }
+
+        .rango-badge { 
+            background: var(--primary); 
+            color: #0f172a; 
+            padding: 3px 8px; 
+            border-radius: 5px; 
+            font-size: 0.75rem; 
+            text-transform: uppercase; 
+            font-weight: 900; 
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Mi Perfil Bitec</h1>
-        <p>Email: <span id="userEmail">...</span></p>
-        <p>Rango: <span id="userRango" class="rango-badge">Verificando...</span></p>
-        <p>Registrado el: <span id="userDate">...</span></p>
-        
-        <button id="btnHome" class="btn-home" onclick="window.location.href='index.html'">🏠 Ir al Home</button>
 
-        <button id="btnAdmin" class="btn-admin" onclick="window.location.href='admin.html'">PANEL DE ADMINISTRADOR</button>
-        
-        <button id="btnSalir" class="btn-logout">CERRAR SESIÓN</button>
+    <div class="container">
+        <h1>Mi Perfil de Usuario</h1>
+
+        <div class="info-group">
+            <label>Correo Electrónico</label>
+            <span id="userEmail" class="data-text">...</span>
+            
+            <label>Rango de Cuenta</label>
+            <span id="userRango" class="rango-badge">Cargando...</span>
+        </div>
+
+        <div class="info-group">
+            <label>Nombre de Usuario (Para el Chat)</label>
+            <div class="input-group">
+                <input type="text" id="txtNombre" placeholder="Tu apodo o nombre...">
+            </div>
+            <button class="btn-save" id="btnGuardarNombre">ACTUALIZAR NOMBRE</button>
+        </div>
+
+        <p style="font-size: 0.8rem; color: #64748b;">Miembro desde: <span id="userDate">...</span></p>
+
+        <button class="btn-admin" id="btnAdmin" onclick="location.href='admin.html'">⚙️ PANEL DE ADMINISTRADOR</button>
+        <button class="btn-volver" onclick="location.href='index.html'">VOLVER AL INICIO</button>
+        <button class="btn-salir" id="btnSalir">CERRAR SESIÓN</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBkkeUy3lWFwRCZp-2gfoEBu5UP2R2vsZk",
@@ -78,23 +123,39 @@
 
                     if (docSnap.exists()) {
                         const datos = docSnap.data();
-                        
                         document.getElementById('userRango').innerText = datos.rango;
-                        document.getElementById('userDate').innerText = datos.fechaRegistro;
+                        document.getElementById('userDate').innerText = datos.fechaRegistro || "No registrada";
+                        
+                        // Cargar el nombre actual si existe
+                        if (datos.nombre) {
+                            document.getElementById('txtNombre').value = datos.nombre;
+                        }
 
                         if (datos.rango === "admin") {
                             document.getElementById('btnAdmin').style.display = "block";
                         }
-                    } else {
-                        document.getElementById('userRango').innerText = "Usuario (Sin perfil)";
-                        document.getElementById('userDate').innerText = "No disponible";
                     }
                 } catch (error) {
-                    console.error("Error al conectar con Firestore:", error);
-                    document.getElementById('userRango').innerText = "Error de red";
+                    console.error("Error:", error);
                 }
             } else {
                 window.location.href = "login.html";
+            }
+        });
+
+        // Guardar el nuevo nombre de usuario
+        document.getElementById('btnGuardarNombre').addEventListener('click', async () => {
+            const nuevoNombre = document.getElementById('txtNombre').value.trim();
+            if (!nuevoNombre) return alert("Escribe un nombre válido.");
+
+            try {
+                const user = auth.currentUser;
+                await updateDoc(doc(db, "usuarios", user.uid), {
+                    nombre: nuevoNombre
+                });
+                alert("Nombre de usuario actualizado con éxito.");
+            } catch (error) {
+                alert("Error al actualizar el nombre.");
             }
         });
 
