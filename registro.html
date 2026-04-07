@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Registro - Bitec Software</title>
     <style>
-        /* Estilos modernos y oscuros */
+        /* Estilo profesional Dark Tech */
         body { 
             background: #0f172a; 
             color: #f1f5f9; 
@@ -30,27 +30,16 @@
 
         h2 { 
             color: #38bdf8; 
-            margin-bottom: 0.5rem;
+            margin: 0 0 0.5rem 0;
             font-size: 2rem;
             letter-spacing: -1px;
         }
 
-        p {
-            color: #94a3b8;
-            margin-bottom: 2rem;
-        }
+        p { color: #94a3b8; margin-bottom: 2rem; }
 
-        .input-group {
-            text-align: left;
-            margin-bottom: 15px;
-        }
+        .input-group { text-align: left; margin-bottom: 15px; }
 
-        label {
-            display: block;
-            margin-bottom: 5px;
-            font-size: 0.9rem;
-            color: #38bdf8;
-        }
+        label { display: block; margin-bottom: 5px; font-size: 0.9rem; color: #38bdf8; }
 
         input { 
             width: 100%; 
@@ -64,9 +53,7 @@
             transition: border-color 0.3s;
         }
 
-        input:focus {
-            border-color: #38bdf8;
-        }
+        input:focus { border-color: #38bdf8; }
 
         button { 
             width: 100%; 
@@ -94,23 +81,20 @@
             margin-top: 20px; 
             display: block; 
             text-decoration: none; 
-            transition: color 0.3s;
         }
 
-        .link:hover { 
-            color: #38bdf8; 
-        }
+        .link:hover { color: #38bdf8; }
     </style>
 </head>
 <body>
 
     <div class="card">
         <h2>Bitec Software</h2>
-        <p>Crea tu cuenta de desarrollador</p>
+        <p>Registro de nuevo usuario</p>
         
         <div class="input-group">
             <label>Correo Electrónico</label>
-            <input type="email" id="email" placeholder="ejemplo@bitec.site">
+            <input type="email" id="email" placeholder="correo@ejemplo.com">
         </div>
 
         <div class="input-group">
@@ -120,52 +104,57 @@
 
         <button id="btnRegistrar">CREAR CUENTA</button>
         
-        <a href="login.html" class="link">¿Ya eres parte de Bitec? Inicia sesión</a>
+        <a href="login.html" class="link">¿Ya tienes cuenta? Inicia sesión</a>
     </div>
 
     <script type="module">
+        // Importación de librerías desde el CDN
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-        // Configuración de tu proyecto
+        // Tus credenciales de Bitec Software
         const firebaseConfig = {
             apiKey: "AIzaSyBkkeUy3lWFwRCZp-2gfoEBu5UP2R2vsZk",
             authDomain: "bitecsoftware-web.firebaseapp.com",
             projectId: "bitecsoftware-web",
             storageBucket: "bitecsoftware-web.firebasestorage.app",
             messagingSenderId: "573214894891",
-            appId: "1:573214894891:web:646628d1e8eb15478bf36e",
-            measurementId: "G-2EW80575TR"
+            appId: "1:573214894891:web:646628d1e8eb15478bf36e"
         };
 
+        // Inicialización
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
+        const db = getFirestore(app);
 
-        document.getElementById('btnRegistrar').addEventListener('click', () => {
+        document.getElementById('btnRegistrar').addEventListener('click', async () => {
             const email = document.getElementById('email').value;
             const pass = document.getElementById('password').value;
 
             if(pass.length < 6) {
-                alert("La contraseña debe tener al menos 6 caracteres.");
+                alert("La contraseña debe ser de al menos 6 caracteres.");
                 return;
             }
 
-            createUserWithEmailAndPassword(auth, email, pass)
-                .then((userCredential) => {
-                    // El mensaje emergente bloquea la ejecución hasta que le das "Aceptar"
-                    alert("¡Registro exitoso! Te redirigiremos al login para que ingreses.");
-                    
-                    // Una vez que el usuario cierra el alert, se ejecuta esta línea:
-                    window.location.href = "login.html";
-                })
-                .catch((error) => {
-                    // Manejo de errores comunes
-                    if (error.code === 'auth/email-already-in-use') {
-                        alert("Este correo ya está registrado.");
-                    } else {
-                        alert("Error: " + error.message);
-                    }
+            try {
+                // 1. Crear usuario en el sistema de autenticación
+                const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+                const user = userCredential.user;
+
+                // 2. Crear documento en la base de datos con el rango
+                await setDoc(doc(db, "usuarios", user.uid), {
+                    correo: email,
+                    rango: "usuario", // Todos empiezan como usuario
+                    fechaRegistro: new Date().toLocaleDateString()
                 });
+
+                alert("¡Usuario registrado con éxito en Bitec!");
+                window.location.href = "login.html";
+
+            } catch (error) {
+                alert("Error al registrar: " + error.message);
+            }
         });
     </script>
 </body>
