@@ -6,31 +6,31 @@
     <title>Panel de Usuario - Bitec Software</title>
     <style>
         body { background: #0f172a; color: white; font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background: #1e293b; width: 400px; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #334155; }
+        .container { background: #1e293b; width: 400px; padding: 30px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #334155; text-align: center; }
         h1 { color: #38bdf8; font-size: 1.5rem; border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 20px; }
-        p { margin: 10px 0; color: #94a3b8; }
+        p { margin: 15px 0; color: #94a3b8; text-align: left; }
         span { color: #38bdf8; font-weight: bold; }
-        .rango-badge { background: #38bdf8; color: #0f172a; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; text-transform: uppercase; }
-        .btn-logout { width: 100%; margin-top: 20px; padding: 10px; background: #ef4444; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .btn-admin { width: 100%; margin-top: 10px; padding: 10px; background: #22c55e; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; display: none; }
+        .rango-badge { background: #38bdf8; color: #0f172a; padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; text-transform: uppercase; font-weight: bold; }
+        .btn-logout { width: 100%; margin-top: 20px; padding: 12px; background: #ef4444; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        .btn-logout:hover { background: #dc2626; }
+        .btn-admin { width: 100%; margin-top: 10px; padding: 12px; background: #22c55e; border: none; color: white; border-radius: 8px; cursor: pointer; font-weight: bold; display: none; transition: 0.3s; }
+        .btn-admin:hover { background: #16a34a; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Mi Perfil Bitec</h1>
         <p>Email: <span id="userEmail">...</span></p>
-        <p>Rango: <span id="userRango" class="rango-badge">Cargando...</span></p>
+        <p>Rango: <span id="userRango" class="rango-badge">Verificando...</span></p>
         <p>Registrado el: <span id="userDate">...</span></p>
         
         <button id="btnAdmin" class="btn-admin">PANEL DE ADMINISTRADOR</button>
-        
         <button id="btnSalir" class="btn-logout">CERRAR SESIÓN</button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        // Importamos Firestore para leer el rango
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
@@ -48,30 +48,41 @@
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
-                // 1. Mostrar el email que viene del Login
+                // Muestra el email básico del login
                 document.getElementById('userEmail').innerText = user.email;
 
-                // 2. Ir a buscar el Rango a Firestore usando el UID del usuario
-                const docRef = doc(db, "usuarios", user.uid);
-                const docSnap = await getDoc(docRef);
+                try {
+                    // Busca el documento en la colección 'usuarios' usando el UID
+                    const docRef = doc(db, "usuarios", user.uid);
+                    const docSnap = await getDoc(docRef);
 
-                if (docSnap.exists()) {
-                    const datos = docSnap.data();
-                    document.getElementById('userRango').innerText = datos.rango;
-                    document.getElementById('userDate').innerText = datos.fechaRegistro;
+                    if (docSnap.exists()) {
+                        const datos = docSnap.data();
+                        
+                        // Vincula los datos exactos de tu Firestore
+                        document.getElementById('userRango').innerText = datos.rango; 
+                        document.getElementById('userDate').innerText = datos.fechaRegistro;
 
-                    // 3. Si es admin, mostramos el botón secreto
-                    if (datos.rango === "admin") {
-                        document.getElementById('btnAdmin').style.display = "block";
+                        // Si el rango en Firestore es 'admin', muestra el botón
+                        if (datos.rango === "admin") {
+                            document.getElementById('btnAdmin').style.display = "block";
+                        }
+                    } else {
+                        document.getElementById('userRango').innerText = "Usuario General";
+                        document.getElementById('userDate').innerText = "No registrada";
                     }
+                } catch (error) {
+                    console.error("Error al leer Firestore:", error);
+                    document.getElementById('userRango').innerText = "Error de conexión";
                 }
             } else {
                 window.location.href = "login.html";
             }
         });
 
-        // Cerrar sesión
         document.getElementById('btnSalir').addEventListener('click', () => {
             signOut(auth).then(() => window.location.href = "login.html");
         });
-    </
+    </script>
+</body>
+</html>
