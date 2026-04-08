@@ -57,7 +57,7 @@
         <h1 style="font-size: 1.2rem; margin:0;">🛡️ Panel Admin - Bitec</h1>
         <div style="display:flex; gap:10px;">
             <button onclick="solicitarPermisos()" style="background:none; border:1px solid var(--primary); color:var(--primary); padding:5px 10px; border-radius:5px; cursor:pointer; font-size:0.8rem;">🔔 Activar Alertas</button>
-            <a href="perfil.html" style="color: white; text-decoration: none; font-size: 0.9rem; padding-top:5px;">← Volver</a>
+            <a href="index.html" style="color: white; text-decoration: none; font-size: 0.9rem; padding-top:5px;">← Volver</a>
         </div>
     </div>
 
@@ -92,7 +92,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getFirestore, collection, query, onSnapshot, doc, updateDoc, deleteDoc, getDoc, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, query, onSnapshot, doc, updateDoc, deleteDoc, getDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBkkeUy3lWFwRCZp-2gfoEBu5UP2R2vsZk",
@@ -140,7 +140,6 @@
                 let pendientes = 0;
                 let nuevoTicketEncontrado = false;
 
-                // Detectar nuevos tickets para notificaciones push
                 snapshot.docChanges().forEach(change => {
                     if (change.type === "added" && !primerCarga) {
                         nuevoTicketEncontrado = true;
@@ -178,12 +177,10 @@
                     container.appendChild(card);
                 });
 
-                // Notificación Push
                 if (nuevoTicketEncontrado && Notification.permission === "granted") {
                     new Notification("Bitec Support", { body: "¡Nuevo ticket de soporte recibido!", icon: "favicon.ico" });
                 }
 
-                // Actualizar contadores y título
                 if (pendientes > 0) {
                     badge.innerText = pendientes;
                     badge.style.display = "inline-block";
@@ -193,7 +190,6 @@
                     document.title = `Panel Admin - Bitec`;
                 }
                 document.getElementById('ticket-title').innerText = `Gestión de Tickets (${snapshot.size})`;
-                
                 primerCarga = false;
             });
         }
@@ -202,18 +198,28 @@
             onSnapshot(collection(db, "usuarios"), (snapshot) => {
                 const container = document.getElementById('listaUsuarios');
                 container.innerHTML = "";
+                
                 snapshot.forEach((uDoc) => {
                     const u = uDoc.data();
                     const id = uDoc.id;
+                    
+                    // Corrección para evitar undefined: usamos el campo email o el ID si no existe
+                    const email = u.email || "Sin correo/Anónimo";
+                    const rango = u.rango || "usuario";
+
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td>${u.email}</td>
-                        <td><b style="color:var(--primary)">${u.rango}</b></td>
+                        <td>${email}</td>
+                        <td>
+                            <span class="status-badge" style="background: ${rango === 'admin' ? 'var(--primary)' : '#475569'}; color: #0f172a;">
+                                ${rango.toUpperCase()}
+                            </span>
+                        </td>
                         <td>
                             <select onchange="window.cambiarRango('${id}', this.value)" style="background:#0f172a; color:white; border:1px solid var(--border); padding:5px; border-radius:4px;">
                                 <option value="">Cambiar...</option>
-                                <option value="usuario">Usuario</option>
-                                <option value="admin">Admin</option>
+                                <option value="usuario">Hacer Usuario</option>
+                                <option value="admin">Hacer Admin</option>
                             </select>
                         </td>
                     `;
@@ -222,7 +228,6 @@
             });
         }
 
-        // FUNCIONES GLOBALES
         window.switchTab = (target) => {
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
