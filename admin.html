@@ -79,7 +79,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th>Email</th>
+                        <th>Nombre de Usuario</th>
                         <th>Rango</th>
                         <th>Acción</th>
                     </tr>
@@ -141,9 +141,7 @@
                 let nuevoTicketEncontrado = false;
 
                 snapshot.docChanges().forEach(change => {
-                    if (change.type === "added" && !primerCarga) {
-                        nuevoTicketEncontrado = true;
-                    }
+                    if (change.type === "added" && !primerCarga) nuevoTicketEncontrado = true;
                 });
 
                 snapshot.forEach((tDoc) => {
@@ -203,13 +201,17 @@
                     const u = uDoc.data();
                     const id = uDoc.id;
                     
-                    // Corrección para evitar undefined: usamos el campo email o el ID si no existe
-                    const email = u.email || "Sin correo/Anónimo";
+                    // BUSCAMOS EL NOMBRE QUE SE ASIGNÓ (comúnmente guardado como 'nombre' o 'usuario')
+                    // Si no existe, usamos el email. Si no hay nada, 'Anónimo'.
+                    const nombreMostrar = u.nombre || u.usuario || u.email || "Usuario Anónimo";
                     const rango = u.rango || "usuario";
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td>${email}</td>
+                        <td>
+                            <div style="font-weight:bold;">${nombreMostrar}</div>
+                            <div style="font-size:0.75rem; color:#94a3b8;">${u.email || ''}</div>
+                        </td>
                         <td>
                             <span class="status-badge" style="background: ${rango === 'admin' ? 'var(--primary)' : '#475569'}; color: #0f172a;">
                                 ${rango.toUpperCase()}
@@ -238,16 +240,11 @@
         window.responderTicket = async (id) => {
             const texto = document.getElementById(`resp-${id}`).value.trim();
             if (!texto) return alert("Escribe una respuesta.");
-            await updateDoc(doc(db, "tickets", id), {
-                respuesta: texto,
-                estado: "respondido"
-            });
+            await updateDoc(doc(db, "tickets", id), { respuesta: texto, estado: "respondido" });
         };
 
         window.eliminarTicket = async (id) => {
-            if (confirm("¿Eliminar este ticket permanentemente?")) {
-                await deleteDoc(doc(db, "tickets", id));
-            }
+            if (confirm("¿Eliminar este ticket permanentemente?")) await deleteDoc(doc(db, "tickets", id));
         };
 
         window.cambiarRango = async (uid, nuevoRango) => {
@@ -255,7 +252,6 @@
             await updateDoc(doc(db, "usuarios", uid), { rango: nuevoRango });
             alert("Rango actualizado.");
         };
-
     </script>
 </body>
 </html>
